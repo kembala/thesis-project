@@ -1,10 +1,10 @@
 import React, {Component} from 'react'
 import SaleContract from '../build/contracts/SaleContract.json'
 import getWeb3 from './utils/getWeb3'
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 
-import './css/oswald.css'
-import './css/open-sans.css'
-import './css/pure-min.css'
+import './css/bootstrap.min.css'
 import './App.css'
 
 class App extends Component {
@@ -13,7 +13,8 @@ class App extends Component {
 
         this.state = {
             storageValue: 0,
-            web3: null
+            web3: null,
+            selectedAddress: null
         }
     }
 
@@ -36,57 +37,73 @@ class App extends Component {
     }
 
     instantiateContract() {
-        /*
-         * SMART CONTRACT EXAMPLE
-         *
-         * Normally these functions would be called in the context of a
-         * state management library, but for convenience I've placed them here.
-         */
-
-        const contract = require('truffle-contract')
-        const saleContract = contract(SaleContract)
-        saleContract.setProvider(this.state.web3.currentProvider)
-
-        // Declaring this for later so we can chain functions on SimpleStorage.
-        var saleContractInstance
 
         // Get accounts.
         this.state.web3.eth.getAccounts((error, accounts) => {
-            saleContract.deployed().then((instance) => {
-                saleContractInstance = instance
+            const availableAccounts = accounts.map((account) => {
+                return {value: account, label: account};
+            });
 
-                // Stores a given value, 5 by default.
-                return saleContractInstance.createContract(5, {from: accounts[0]})
-            }).then((result) => {
-                // Get the value from the contract to prove it worked.
-                return saleContractInstance.get.call(accounts[0])
-            }).then((result) => {
-                // Update state with the result.
-                return this.setState({storageValue: result.c[0]})
-            })
+            this.setState({accounts: availableAccounts});
         })
     }
 
-    render() {
-        return (
-            <div className="App">
-                <nav className="navbar pure-menu pure-menu-horizontal">
-                    <a href="#" className="pure-menu-heading pure-menu-link">Truffle Box</a>
-                </nav>
+    handleChange = (address) => {
+        this.setState({selectedAddress: address.value});
+        console.log(`Selected: ${address.label}`);
+    }
 
-                <main className="container">
-                    <div className="pure-g">
-                        <div className="pure-u-1-1">
-                            <h1>Good to Go!</h1>
-                            <p>Your Truffle Box is installed and ready.</p>
-                            <h2>Smart Contract Example</h2>
-                            <p>If your contracts compiled and migrated successfully, below will show a stored value of 5
-                                (by default).</p>
-                            <p>Try changing the value stored on <strong>line 59</strong> of App.js.</p>
-                            <p>The stored value is: {this.state.storageValue}</p>
-                        </div>
+    createContract = () => {
+        const contract = require('truffle-contract');
+        const saleContract = contract(SaleContract);
+        saleContract.setProvider(this.state.web3.currentProvider);
+        var contractInstance;
+        var contractId;
+
+        saleContract.deployed().then((instance) => {
+            contractInstance = instance;
+            return contractInstance.createContract.call(this.state.selectedAddress, {
+                from: this.state.selectedAddress,
+                gas: 3000000
+            });
+        }).then((result) => {
+            contractId = result.toNumber();
+            return contractInstance.createContract(this.state.selectedAddress, {
+                from: this.state.selectedAddress,
+                gas: 3000000
+            });
+        }).then((data) => {
+            console.log(`E-contract created with {id: ${contractId}}`);
+        });
+    }
+
+    render() {
+        const {selectedAddress} = this.state;
+        const value = selectedAddress;
+
+        return (
+            <div>
+                <div className="card m-2">
+                    <div className="card-header">
+                        Select buyer address
                     </div>
-                </main>
+                    <div className="card-body">
+                        <Select
+                            name="form-field-name"
+                            value={value}
+                            onChange={this.handleChange}
+                            options={this.state.accounts}
+                        />
+                    </div>
+                </div>
+                <div className="card m-2">
+                    <div className="card-header">
+                        Create contract
+                    </div>
+                    <div className="card-body">
+                        <button className="btn btn-primary" onClick={this.createContract}>Create</button>
+                    </div>
+                </div>
             </div>
         );
     }
