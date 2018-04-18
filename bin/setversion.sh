@@ -4,5 +4,5 @@
 # Update solditiy version
 # https://github.com/truffle-box/react-uport-box/issues/15
 
-cd /usr/local/lib/node_modules/truffle/
-yarn add solc
+cd /usr/local/lib/node_modules/truffle
+npm install solc@0.4.15
