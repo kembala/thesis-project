@@ -25,5 +25,4 @@ install:
   - bash ./bin/travis-install.sh
 
 script:
-  - bash ./bin/setversion.sh
   - bash ./bin/test.sh
