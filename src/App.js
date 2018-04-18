@@ -8,6 +8,34 @@ import './css/bootstrap.min.css'
 import './App.css'
 
 class App extends Component {
+    handleChange = (address) => {
+        this.setState({selectedAddress: address.value});
+        console.log(`Selected: ${address.label}`);
+    }
+    createContract = () => {
+        const contract = require('truffle-contract');
+        const saleContract = contract(SaleContract);
+        saleContract.setProvider(this.state.web3.currentProvider);
+        var contractInstance;
+        var contractId;
+
+        saleContract.deployed().then((instance) => {
+            contractInstance = instance;
+            return contractInstance.createContract.call(this.state.selectedAddress, {
+                from: this.state.selectedAddress,
+                gas: 3000000
+            });
+        }).then((result) => {
+            contractId = result.toNumber();
+            return contractInstance.createContract(this.state.selectedAddress, {
+                from: this.state.selectedAddress,
+                gas: 3000000
+            });
+        }).then((data) => {
+            console.log(`E-contract created with {id: ${contractId}}`);
+        });
+    }
+
     constructor(props) {
         super(props)
 
@@ -46,35 +74,6 @@ class App extends Component {
 
             this.setState({accounts: availableAccounts});
         })
-    }
-
-    handleChange = (address) => {
-        this.setState({selectedAddress: address.value});
-        console.log(`Selected: ${address.label}`);
-    }
-
-    createContract = () => {
-        const contract = require('truffle-contract');
-        const saleContract = contract(SaleContract);
-        saleContract.setProvider(this.state.web3.currentProvider);
-        var contractInstance;
-        var contractId;
-
-        saleContract.deployed().then((instance) => {
-            contractInstance = instance;
-            return contractInstance.createContract.call(this.state.selectedAddress, {
-                from: this.state.selectedAddress,
-                gas: 3000000
-            });
-        }).then((result) => {
-            contractId = result.toNumber();
-            return contractInstance.createContract(this.state.selectedAddress, {
-                from: this.state.selectedAddress,
-                gas: 3000000
-            });
-        }).then((data) => {
-            console.log(`E-contract created with {id: ${contractId}}`);
-        });
     }
 
     render() {
