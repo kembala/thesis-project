@@ -23,7 +23,7 @@ matrix:
 
 install:
   - bash ./bin/travis-install.sh
-  - travis_wait 30 npm install solc@0.4.18
+  - travis_wait 30 npm install -g solc@0.4.18
 
 script:
   - bash ./bin/test.sh
