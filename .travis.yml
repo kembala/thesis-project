@@ -4,6 +4,10 @@ language: node_js
 node_js:
   - "9.4.0"
 
+env:
+  - NODE_ENV=test
+  - BABEL_ENV=test
+
 matrix:
   include:
     - os: linux
