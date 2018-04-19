@@ -23,7 +23,7 @@ matrix:
 
 install:
   - npm install
-  - npm install -g ganache-cli truffle@4.1.5
+  - npm install -g ganache-cli truffle@4.0.0-beta.0
 
 script:
   - ganache-cli --gasLimit 4712388 2> /dev/null 1> /dev/null &
