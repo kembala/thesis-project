@@ -25,4 +25,4 @@ install:
   - bash ./bin/travis-install.sh
 
 script:
-  - bash ./bin/test.sh
+  - travis_wait 30 bash ./bin/test.sh
