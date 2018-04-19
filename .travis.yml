@@ -22,7 +22,14 @@ matrix:
       - rm -rf node_modules
 
 install:
-  - bash ./bin/travis-install.sh
+  - npm install
+  - npm install -g ganache-cli truffle@4.1.5
 
 script:
-  - travis_wait 30 bash ./bin/test.sh
+  - ganache-cli --gasLimit 4712388 2> /dev/null 1> /dev/null &
+  - sleep 5
+  - rm -rf build
+  - truffle compile
+  - truffle migrate --reset --network development
+  - truffle test
+  - kill -9 $(lsof -t -i:8545)
