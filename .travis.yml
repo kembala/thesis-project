@@ -26,8 +26,10 @@ install:
   - npm install -g ganache-cli
 
 script:
+  - lsof -i:8545
   - ganache-cli --gasLimit 9999999999999999 2> /dev/null 1> /dev/null &
   - sleep 5
+  - lsof -i:8545
   - rm -rf build
   - truffle compile
   - truffle migrate --reset --network development
