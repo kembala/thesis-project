@@ -27,5 +27,4 @@ install:
 script:
   - rm -rf build
   - truffle compile
-  - truffle migrate
   - truffle test
