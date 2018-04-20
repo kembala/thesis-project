@@ -26,7 +26,8 @@ install:
   - npm install -g ganache-cli truffle@4.0.0-beta.0
 
 script:
-  - ganache-cli --gasLimit 4712388 2> /dev/null 1> /dev/null &
+  - kill -9 $(lsof -t -i:8545)
+  - ganache-cli --gasLimit 9999999999999999 2> /dev/null 1> /dev/null &
   - sleep 5
   - rm -rf build
   - truffle compile
