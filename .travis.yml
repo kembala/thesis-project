@@ -25,6 +25,7 @@ install:
   - npm install
 
 script:
+  - sleep 5
   - rm -rf build
   - truffle compile
   - truffle test
