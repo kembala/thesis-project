@@ -25,11 +25,6 @@ install:
   - npm install
 
 script:
-  - lsof -i:8545
-  - sleep 5
-  - lsof -i:8545
   - rm -rf build
   - truffle compile
-  - truffle migrate --reset --network development
   - truffle test
-  - kill -9 $(lsof -t -i:8545)
