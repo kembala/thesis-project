@@ -23,10 +23,10 @@ matrix:
 
 install:
   - npm install
-  - npm install -g ganache-cli truffle@4.0.0-beta.0
+  - npm install -g ganache-cli
 
 script:
-  - bash kill -9 $(lsof -t -i:8545)
+  - kill -9 $(lsof -t -i:8545)
   - ganache-cli --gasLimit 9999999999999999 2> /dev/null 1> /dev/null &
   - sleep 5
   - rm -rf build
