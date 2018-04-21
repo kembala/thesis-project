@@ -6,7 +6,7 @@ node_js:
 matrix:
   include:
     - os: linux
-      dist: precise
+      dist: xenial
       before_install:
       - sudo add-apt-repository ppa:ethereum/ethereum -y
       - sudo apt-get update
