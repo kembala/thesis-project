@@ -18,7 +18,10 @@ matrix:
       - rm -rf node_modules
  
 install:
-  - bash ./bin/travis-install.sh
+  - npm install -g ganache-cli truffle
  
 script:
-  - bash ./bin/test.sh
+- ganache-cli -p 7545 > /dev/null &
+- sleep 10
+- truffle migrate
+- truffle test
