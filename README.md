@@ -1,10 +1,10 @@
 # thesis-project
 ![Travis Badge](https://travis-ci.com/kemenesbalazs/thesis-project.svg?token=zk4SdsUUbg2RExKGHKy2&branch=master)
 
-This is the example project of the bachelor thesis: "Managing digital contracts on blockchain platforms"
-It consists of a react-app based on the truffle react box.
+This is the example project of the bachelor thesis: "Managing digital contracts on blockchain platforms".
+It consists of a react-app based on Truffle's [react-app](http://truffleframework.com/boxes/react).
 
-## Installation (copied truffle box)
+## Installation (copied from Truffle's [react-app](http://truffleframework.com/boxes/react))
 
 1. Install Truffle globally.
     ```javascript
