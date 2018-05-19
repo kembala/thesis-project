@@ -3,6 +3,7 @@ import getWeb3 from './../utils/getWeb3'
 import SaleContract from './../../build/contracts/SaleContract.json'
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
+import Action from "./Action";
 
 class ContractExplorer extends Component {
 
@@ -32,7 +33,7 @@ class ContractExplorer extends Component {
             })
     }
 
-    getContracts () {
+    getContracts() {
         const contract = require('truffle-contract');
         const saleContract = contract(SaleContract);
         saleContract.setProvider(this.state.web3.currentProvider);
@@ -43,11 +44,11 @@ class ContractExplorer extends Component {
 
         saleContract.deployed().then((instance) => {
             contractInstance = instance;
-            return contractInstance.getContracts.call({from:this.props.selectedAddress});
+            return contractInstance.getContracts.call({from: this.props.selectedAddress});
         }).then((result) => {
             contractIds = result;
 
-            contractIds.forEach(function(val,index) {
+            contractIds.forEach(function (val, index) {
                 let contractData = {};
 
                 saleContract.deployed().then((instance) => {
@@ -62,16 +63,19 @@ class ContractExplorer extends Component {
                     contractData.freight = result[0].toString();
                     contractData.insurance = result[0].toString();
                     contractData.comment = result[0].toString();
-                    return;
-                }).then(() => {
+
                     return contractInstance.getContractParticipants.call(val.toNumber());
                 }).then((result) => {
                     contractData.buyerAddress = result[0];
                     contractData.sellerAddress = result[1];
 
-                    contractData.action = "fuck";
+                    return contractInstance.getContractState.call(val.toNumber())
+                }).then((result) => {
+                    contractData.action = result.toNumber();
+                    console.log(result)
+
                     hook.setState({
-                        data : [...hook.state.data, contractData]
+                        data: [...hook.state.data, contractData]
                     });
                 });
             });
@@ -109,15 +113,18 @@ class ContractExplorer extends Component {
         }, {
             Header: 'Comment',
             accessor: 'comment',
-        },{
+        }, {
             Header: 'Action',
             accessor: 'action',
+            Cell: row => (
+                <Action state={row.value}/>)
         }];
 
         return (
             <ReactTable
                 data={this.state.data}
                 columns={columns}
+                defaultPageSize={5}
             />
         )
     }
