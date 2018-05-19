@@ -1,106 +1,52 @@
 import React, {Component} from 'react'
-import SaleContract from '../build/contracts/SaleContract.json'
-import getWeb3 from './utils/getWeb3'
-import Select from 'react-select';
-import 'react-select/dist/react-select.css';
+import AddressSelector from './components/AddressSelector.js'
 
 import './css/bootstrap.min.css'
 import './App.css'
+import ContractCreator from "./components/ContractCreator";
+import ContractExplorer from "./components/ContractExplorer";
 
 class App extends Component {
-    handleChange = (address) => {
+    selectedAddressChange = (address) => {
         this.setState({selectedAddress: address.value});
-        console.log(`Selected: ${address.label}`);
-    }
-    createContract = () => {
-        const contract = require('truffle-contract');
-        const saleContract = contract(SaleContract);
-        saleContract.setProvider(this.state.web3.currentProvider);
-        var contractInstance;
-        var contractId;
-
-        saleContract.deployed().then((instance) => {
-            contractInstance = instance;
-            return contractInstance.createContract.call(this.state.selectedAddress, {
-                from: this.state.selectedAddress,
-                gas: 3000000
-            });
-        }).then((result) => {
-            contractId = result.toNumber();
-            return contractInstance.createContract(this.state.selectedAddress, {
-                from: this.state.selectedAddress,
-                gas: 3000000
-            });
-        }).then((data) => {
-            console.log(`E-contract created with {id: ${contractId}}`);
-        });
-    }
+        console.log(`Selected address: ${address.label}`)
+    };
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
-            storageValue: 0,
-            web3: null,
-            selectedAddress: null
+            selectedAddress: null,
         }
     }
 
-    componentWillMount() {
-        // Get network provider and web3 instance.
-        // See utils/getWeb3 for more info.
-
-        getWeb3
-            .then(results => {
-                this.setState({
-                    web3: results.web3
-                })
-
-                // Instantiate contract once web3 provided.
-                this.instantiateContract()
-            })
-            .catch(() => {
-                console.log('Error finding web3.')
-            })
-    }
-
-    instantiateContract() {
-
-        // Get accounts.
-        this.state.web3.eth.getAccounts((error, accounts) => {
-            const availableAccounts = accounts.map((account) => {
-                return {value: account, label: account};
-            });
-
-            this.setState({accounts: availableAccounts});
-        })
-    }
-
     render() {
-        const {selectedAddress} = this.state;
-        const value = selectedAddress;
-
         return (
             <div>
                 <div className="card m-2">
                     <div className="card-header">
-                        Select buyer address
+                        Address to use
                     </div>
                     <div className="card-body">
-                        <Select
-                            name="form-field-name"
-                            value={value}
-                            onChange={this.handleChange}
-                            options={this.state.accounts}
+                        <AddressSelector
+                           onChange={this.selectedAddressChange}
                         />
                     </div>
                 </div>
                 <div className="card m-2">
                     <div className="card-header">
-                        Create contract
+                        New Sale Contract
                     </div>
                     <div className="card-body">
-                        <button className="btn btn-primary" onClick={this.createContract}>Create</button>
+                        <ContractCreator selectedAddress={this.state.selectedAddress}/>
+                    </div>
+                </div>
+                <div className="card m-2">
+                    <div className="card-header">
+                        Contracts
+                    </div>
+                    <div className="card-body">
+                        <ContractExplorer selectedAddress={this.state.selectedAddress}/>
                     </div>
                 </div>
             </div>

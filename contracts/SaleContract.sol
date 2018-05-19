@@ -1,5 +1,6 @@
 pragma solidity ^0.4.18;
 
+
 import "./libs/strings.sol";
 
 
@@ -21,24 +22,24 @@ contract SaleContract {
 
     // Variables for individual e-contract instances
     struct DigitalContract {
-    /* Required fields */
-    address buyerAddress;
-    address sellerAddress;
-    State state;
+        /* Required fields */
+        address buyerAddress;
+        address sellerAddress;
+        State state;
 
-    /* Request data */
-    uint quantity;
+        /* Request data */
+        uint quantity;
 
-    /* Proposal data */
-    uint unitPrice;
-    string deliveryDate;
-    string returnPolicy;
-    uint deposit;
-    string freight;
-    string insurance;
+        /* Proposal data */
+        uint unitPrice;
+        string deliveryDate;
+        string returnPolicy;
+        uint deposit;
+        string freight;
+        string insurance;
 
-    /* Fail data */
-    string comment;
+        /* Fail data */
+        string comment;
     }
 
     /// Function modifier to ensure state transitions
@@ -95,6 +96,13 @@ contract SaleContract {
     ) {
         buyerAddress = contracts[_contractID].buyerAddress;
         sellerAddress = contracts[_contractID].sellerAddress;
+    }
+
+    /* Get e-contract state for a given contract ID */
+    function getContractState(uint _contractID) external view returns (
+        State state
+    ) {
+        state = contracts[_contractID].state;
     }
 
     /* Get e-contract details for a given contract ID */
