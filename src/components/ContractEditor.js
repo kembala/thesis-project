@@ -1,11 +1,8 @@
 import React, {Component} from 'react'
 import getWeb3 from './../utils/getWeb3'
 import SaleContract from './../../build/contracts/SaleContract.json'
-import ReactTable from "react-table";
-import 'react-table/react-table.css'
-import Action from "./Action";
 
-class ContractExplorer extends Component {
+class ContractEditor extends Component {
 
     constructor(props) {
         super(props);
@@ -26,7 +23,6 @@ class ContractExplorer extends Component {
                     web3: results.web3
                 });
 
-                this.getContracts();
             })
             .catch((e) => {
                 console.log('Error finding web3. ' + e)
@@ -63,7 +59,6 @@ class ContractExplorer extends Component {
                     contractData.freight = result[0].toString();
                     contractData.insurance = result[0].toString();
                     contractData.comment = result[0].toString();
-                    contractData.id = val.toString();
 
                     return contractInstance.getContractParticipants.call(val.toNumber());
                 }).then((result) => {
@@ -84,54 +79,13 @@ class ContractExplorer extends Component {
     }
 
     render() {
-        const selectedAddress = this.props.selectedAddress;
-        const onEdit = this.props.onEdit;
-
-        const columns = [{
-            Header: 'Buyer address',
-            accessor: 'buyerAddress' // String-based value accessors!
-        }, {
-            Header: 'Seller address',
-            accessor: 'sellerAddress',
-        }, {
-            Header: 'Quantity',
-            accessor: 'quantity',
-        }, {
-            Header: 'Unit price',
-            accessor: 'unitPrice',
-        }, {
-            Header: 'Delivery date',
-            accessor: 'deliveryDate',
-        }, {
-            Header: 'Return policy',
-            accessor: 'returnPolicy',
-        }, {
-            Header: 'Deposit',
-            accessor: 'deposit',
-        }, {
-            Header: 'Freight',
-            accessor: 'freight',
-        }, {
-            Header: 'Insurance',
-            accessor: 'insurance',
-        }, {
-            Header: 'Comment',
-            accessor: 'comment',
-        }, {
-            Header: 'Action',
-            accessor: 'action',
-            Cell: row => (
-                <Action isBuyer={row.original.buyerAddress === selectedAddress} state={row.value} onEdit={() => onEdit(row.original.id)}/>)
-        }];
 
         return (
-            <ReactTable
-                data={this.state.data}
-                columns={columns}
-                defaultPageSize={5}
-            />
+            <div>
+                {this.props.address}
+            </div>
         )
     }
 }
 
-export default ContractExplorer
+export default ContractEditor

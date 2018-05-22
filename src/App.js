@@ -5,6 +5,7 @@ import './css/bootstrap.min.css'
 import './App.css'
 import ContractCreator from "./components/ContractCreator";
 import ContractExplorer from "./components/ContractExplorer";
+import ContractEditor from "./components/ContractEditor";
 
 class App extends Component {
     selectedAddressChange = (address) => {
@@ -12,11 +13,17 @@ class App extends Component {
         console.log(`Selected address: ${address.label}`)
     };
 
+    onEditAction = (address) => {
+        this.setState({editedAddress: address});
+        console.log(`Edited address: ${address}`);
+    };
+
     constructor(props) {
         super(props);
 
         this.state = {
             selectedAddress: null,
+            editedAddress: null
         }
     }
 
@@ -43,10 +50,18 @@ class App extends Component {
                 </div>
                 <div className="card m-2">
                     <div className="card-header">
-                        Contracts
+                        Contracts <span className="badge badge-info">You only see the contracts related to your selected address</span>
                     </div>
                     <div className="card-body">
-                        <ContractExplorer selectedAddress={this.state.selectedAddress}/>
+                        <ContractExplorer selectedAddress={this.state.selectedAddress} onEdit={this.onEditAction}/>
+                    </div>
+                </div>
+                <div className="card m-2">
+                    <div className="card-header">
+                        Edit contract
+                    </div>
+                    <div className="card-body">
+                        <ContractEditor address={this.state.editedAddress}/>
                     </div>
                 </div>
             </div>

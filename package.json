@@ -50,8 +50,9 @@
   },
   "dependencies": {
     "dotenv": "^2.0.0",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "react": "^15.6.2",
+    "react-bootstrap": "^0.32.1",
+    "react-dom": "^15.6.2",
     "react-select": "^1.2.1",
     "react-table": "^6.8.5",
     "solc": "^0.4.18"
