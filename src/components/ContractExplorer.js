@@ -4,6 +4,7 @@ import SaleContract from './../../build/contracts/SaleContract.json'
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
 import Action from "./Action";
+import AsyncLock from 'async-lock'
 
 class ContractExplorer extends Component {
 
@@ -12,8 +13,7 @@ class ContractExplorer extends Component {
 
         this.state = {
             web3: null,
-            data: [],
-            watchIsSet: false
+            data: []
         };
     }
 
@@ -28,6 +28,7 @@ class ContractExplorer extends Component {
                 });
 
                 this.watchEvents();
+                this.updateContracts();
             })
             .catch((e) => {
                 console.log('Error finding web3. ' + e)
@@ -36,9 +37,8 @@ class ContractExplorer extends Component {
 
     componentWillReceiveProps(nextProps) {
         // You don't have to do this check first, but it can help prevent an unneeded render
-        if(this.state.watchIsSet && nextProps.selectedAddress !== this.props.selectedAddress) {
+        if(nextProps.selectedAddress !== this.props.selectedAddress) {
             this.updateContracts();
-            console.log("updatedFromProps")
         }
     }
 
@@ -67,13 +67,13 @@ class ContractExplorer extends Component {
                     return contractInstance.getContractValues.call(val.toNumber());
                 }).then((result) => {
                     contractData.quantity = result[0].toString();
-                    contractData.unitPrice = result[0].toString();
-                    contractData.deliveryDate = result[0].toString();
-                    contractData.returnPolicy = result[0].toString();
-                    contractData.deposit = result[0].toString();
-                    contractData.freight = result[0].toString();
-                    contractData.insurance = result[0].toString();
-                    contractData.comment = result[0].toString();
+                    contractData.unitPrice = result[1].toString();
+                    contractData.deliveryDate = result[2].toString();
+                    contractData.returnPolicy = result[3].toString();
+                    contractData.deposit = result[4].toString();
+                    contractData.freight = result[5].toString();
+                    contractData.insurance = result[6].toString();
+                    contractData.comment = result[7].toString();
                     contractData.id = val.toString();
 
                     return contractInstance.getContractParticipants.call(val.toNumber());
@@ -84,15 +84,29 @@ class ContractExplorer extends Component {
                     return contractInstance.getContractState.call(val.toNumber())
                 }).then((result) => {
                     contractData.action = result.toNumber();
-                    console.log(contractData.action)
 
-                    hook.setState({
-                        data: [...hook.state.data, contractData]
-                    });
+                    hook.addContractData(contractData);
                 });
             });
         });
     }
+
+    // Async locked funciton for adding contract data
+    addContractData = (data) => {
+        const hook = this;
+        var lock = new AsyncLock();
+        lock.acquire('updateLock', () => {
+            let isDuplicated = false;
+
+            hook.state.data.forEach((val,index) => {
+                if(val.id === data.id)
+                    isDuplicated = true;
+            });
+
+            if(!isDuplicated)
+                hook.setState({data: [...hook.state.data, data]});
+        });
+    };
 
     watchEvents() {
         const contract = require('truffle-contract');
@@ -103,11 +117,7 @@ class ContractExplorer extends Component {
         saleContract.deployed().then((instance) => {
             contractInstance = instance;
 
-            contractInstance.ContractCreated({fromBlock: '0', toBlock: 'latest'}).watch((error, event) => {
-                this.updateContracts();
-            });
-
-            this.setState({watchIsSet: true});
+            contractInstance.allEvents((error,log) => {this.updateContracts();});
         });
     }
 
@@ -149,7 +159,7 @@ class ContractExplorer extends Component {
             Header: 'ActionButton',
             accessor: 'action',
             Cell: row => (
-                <Action isBuyer={row.original.buyerAddress === selectedAddress} state={row.value} onClick={() => onEdit({state:row.value,id: row.original.id})}/>)
+                <Action isBuyer={row.original.buyerAddress === selectedAddress} address={selectedAddress} state={row.value} contractId={row.original.id} inputHandler={onEdit} />)
         }];
 
         return (

@@ -49,6 +49,7 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "async-lock": "^1.1.2",
     "dotenv": "^2.0.0",
     "react": "^15.6.2",
     "react-bootstrap": "^0.32.1",

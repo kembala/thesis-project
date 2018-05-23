@@ -8,7 +8,7 @@ class ContractEditor extends Component {
     schemaQuantify = {
         type: "object",
         properties: {
-            title: {type: "string", title: "Quantity"}
+            quantity: {type: "number", title: "Quantity"}
         }
     };
 
@@ -18,7 +18,66 @@ class ContractEditor extends Component {
         saleContract.setProvider(this.state.web3.currentProvider);
 
         saleContract.deployed().then((instance) => {
-            return instance.quantify(data.id, data.quantity);
+            return instance.quantify(this.state.web3.toBigNumber(data.id), this.state.web3.toBigNumber(data.quantity), {from: this.props.address});
+        }).then((result) => {
+            console.log(result);
+        });
+    };
+
+    schemaPropose = {
+        type: "object",
+        properties: {
+            unitPrice: {type: "number", title: "Unit price"},
+            deliveryDate: {type: "string", title: "Delivery date"},
+            returnPolicy: {type: "string", title: "Return policy"},
+            deposit: {type: "number", title: "Deposit"},
+            freight: {type: "string", title: "Freight"},
+            insurance: {type: "string", title: "Insurance"}
+        }
+    };
+
+    actionPropose = (data) => {
+        const contract = require('truffle-contract');
+        const saleContract = contract(SaleContract);
+        saleContract.setProvider(this.state.web3.currentProvider);
+
+        console.log(this.props.address);
+
+        saleContract.deployed().then((instance) => {
+            return instance.propose(
+                this.state.web3.toBigNumber(data.id),
+                this.state.web3.toBigNumber(data.unitPrice),
+                data.deliveryDate,
+                data.returnPolicy,
+                this.state.web3.toBigNumber(data.deposit),
+                data.freight,
+                data.insurance,
+                {from: this.props.address, gas: 200000});
+        }).then((result) => {
+            console.log(result);
+        });
+
+    };
+
+    schemaDecline = {
+        type: "object",
+        properties: {
+            comment: {type: "string", title: "Comment"}
+        }
+    };
+
+    actionDecline = (data) => {
+        const contract = require('truffle-contract');
+        const saleContract = contract(SaleContract);
+        saleContract.setProvider(this.state.web3.currentProvider);
+
+        console.log(this.props.address);
+
+        saleContract.deployed().then((instance) => {
+            return instance.commentDecline(
+                this.state.web3.toBigNumber(data.id),
+                data.comment,
+                {from: this.props.address, gas: 200000});
         }).then((result) => {
             console.log(result);
         });
@@ -29,13 +88,12 @@ class ContractEditor extends Component {
 
         const schemaEmpty = {
             type: "object",
-            properties: {
-            }
+            properties: {}
         };
 
         this.state = {
             web3: null,
-            showOperation: true,
+            operationDone: false,
             schema: schemaEmpty,
             formData: {}
         };
@@ -43,14 +101,16 @@ class ContractEditor extends Component {
 
     componentWillReceiveProps(nextProps) {
         // You don't have to do this check first, but it can help prevent an unneeded render
-        if(nextProps.data !== this.props.data) {
-            this.setState({formData: {
+        if (nextProps.data !== this.props.data) {
+            this.setState({
+                formData: {
                     id: nextProps.data.id
-                }});
+                }
+            });
 
-            console.log(`new data in edit: ${nextProps.data}`)
+            console.log(`new data in edit: ${nextProps.data.id}`)
 
-            this.setSchema();
+            this.setSchema(nextProps.data.state);
         }
     }
 
@@ -72,21 +132,45 @@ class ContractEditor extends Component {
 
     handleSubmit = (result) => {
         console.log(result);
-        switch(this.props.data.state) {
+        switch (this.props.data.state) {
             case 0: {
                 this.actionQuantify(result.formData);
                 break;
             }
+            case 1: {
+                this.actionPropose(result.formData);
+                break;
+            }
+            case 2: {
+                this.actionDecline(result.formData);
+                break;
+            }
+            default: {
+                // Do nothing
+            }
         }
+
+        this.setState({operationDone: true});
     };
 
-    setSchema () {
+    setSchema(state) {
         let newSchema;
 
-        switch(this.props.data.state) {
+        switch (state) {
             case 0: {
                 newSchema = this.schemaQuantify;
                 break;
+            }
+            case 1: {
+                newSchema = this.schemaPropose;
+                break;
+            }
+            case 2: {
+                newSchema = this.schemaDecline;
+                break;
+            }
+            default: {
+                // Do nothing
             }
         }
 
@@ -98,17 +182,23 @@ class ContractEditor extends Component {
             id: {"ui:widget": "hidden"}
         };
 
+        if (this.props.data == null) {
+            return <div>There is no operation with inputs currently</div>
+        }
+
+        if (this.state.operationDone) {
+            return (<span className="badge badge-pill badge-success">Success</span>);
+        }
+
         return (
             <div>
-                {this.props.data == null
-                ?
-                "No contracts selected"
-                :
-                this.state.showOperation &&
-                <Form schema={this.state.schema}
-                      uiSchema={uiSchemaHiddenId}
-                      formData={this.state.formData}
-                      onSubmit={this.handleSubmit} />}
+                {this.state.operationDone ?
+                    <span className="badge badge-pill badge-success">Success</span>
+                    :
+                    <Form schema={this.state.schema}
+                          uiSchema={uiSchemaHiddenId}
+                          formData={this.state.formData}
+                          onSubmit={this.handleSubmit}/>}
             </div>
         )
     }

@@ -56,7 +56,7 @@ contract SaleContract {
 
     /// Function modifier to ensure seller is calling
     modifier onlySeller (uint _contractID){
-        require(contracts[_contractID].buyerAddress == msg.sender);
+        require(contracts[_contractID].sellerAddress == msg.sender);
         _;
     }
 
