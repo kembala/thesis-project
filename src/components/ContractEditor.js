@@ -105,10 +105,11 @@ class ContractEditor extends Component {
             this.setState({
                 formData: {
                     id: nextProps.data.id
-                }
+                },
+                operationDone: false
             });
 
-            console.log(`new data in edit: ${nextProps.data.id}`)
+            console.log(`new data in edit: ${nextProps.data.id}`);
 
             this.setSchema(nextProps.data.state);
         }
