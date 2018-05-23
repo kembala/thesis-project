@@ -13,9 +13,9 @@ class App extends Component {
         console.log(`Selected address: ${address.label}`)
     };
 
-    onEditAction = (address) => {
-        this.setState({editedAddress: address});
-        console.log(`Edited address: ${address}`);
+    onEditAction = (data) => {
+        this.setState({editedContractData: data});
+        console.log(`Edited contract id: ${data.id}, state: ${data.state}`);
     };
 
     constructor(props) {
@@ -23,7 +23,7 @@ class App extends Component {
 
         this.state = {
             selectedAddress: null,
-            editedAddress: null
+            editedContractData: null
         }
     }
 
@@ -32,7 +32,7 @@ class App extends Component {
             <div>
                 <div className="card m-2">
                     <div className="card-header">
-                        Address to use
+                        Address to use <span className="badge badge-pill badge-info">You will interact via this account with the blockchain</span>
                     </div>
                     <div className="card-body">
                         <AddressSelector
@@ -42,7 +42,7 @@ class App extends Component {
                 </div>
                 <div className="card m-2">
                     <div className="card-header">
-                        New Sale Contract
+                        New Sale Contract <span className="badge badge-pill badge-info">Your selected address will be the buyerAddress of the e-contract</span>
                     </div>
                     <div className="card-body">
                         <ContractCreator selectedAddress={this.state.selectedAddress}/>
@@ -50,7 +50,7 @@ class App extends Component {
                 </div>
                 <div className="card m-2">
                     <div className="card-header">
-                        Contracts <span className="badge badge-info">You only see the contracts related to your selected address</span>
+                        Contracts <span className="badge badge-pill badge-info">You only see the contracts related to your selected address</span>
                     </div>
                     <div className="card-body">
                         <ContractExplorer selectedAddress={this.state.selectedAddress} onEdit={this.onEditAction}/>
@@ -61,7 +61,7 @@ class App extends Component {
                         Edit contract
                     </div>
                     <div className="card-body">
-                        <ContractEditor address={this.state.editedAddress}/>
+                        <ContractEditor data={this.state.editedContractData} address={this.state.selectedAddress}/>
                     </div>
                 </div>
             </div>

@@ -12,7 +12,8 @@ class ContractExplorer extends Component {
 
         this.state = {
             web3: null,
-            data: []
+            data: [],
+            watchIsSet: false
         };
     }
 
@@ -26,14 +27,24 @@ class ContractExplorer extends Component {
                     web3: results.web3
                 });
 
-                this.getContracts();
+                this.watchEvents();
             })
             .catch((e) => {
                 console.log('Error finding web3. ' + e)
             })
     }
 
-    getContracts() {
+    componentWillReceiveProps(nextProps) {
+        // You don't have to do this check first, but it can help prevent an unneeded render
+        if(this.state.watchIsSet && nextProps.selectedAddress !== this.props.selectedAddress) {
+            this.updateContracts();
+            console.log("updatedFromProps")
+        }
+    }
+
+    updateContracts() {
+        this.setState({data: []});
+
         const contract = require('truffle-contract');
         const saleContract = contract(SaleContract);
         saleContract.setProvider(this.state.web3.currentProvider);
@@ -83,6 +94,23 @@ class ContractExplorer extends Component {
         });
     }
 
+    watchEvents() {
+        const contract = require('truffle-contract');
+        const saleContract = contract(SaleContract);
+        saleContract.setProvider(this.state.web3.currentProvider);
+        let contractInstance;
+
+        saleContract.deployed().then((instance) => {
+            contractInstance = instance;
+
+            contractInstance.ContractCreated({fromBlock: '0', toBlock: 'latest'}).watch((error, event) => {
+                this.updateContracts();
+            });
+
+            this.setState({watchIsSet: true});
+        });
+    }
+
     render() {
         const selectedAddress = this.props.selectedAddress;
         const onEdit = this.props.onEdit;
@@ -118,10 +146,10 @@ class ContractExplorer extends Component {
             Header: 'Comment',
             accessor: 'comment',
         }, {
-            Header: 'Action',
+            Header: 'ActionButton',
             accessor: 'action',
             Cell: row => (
-                <Action isBuyer={row.original.buyerAddress === selectedAddress} state={row.value} onEdit={() => onEdit(row.original.id)}/>)
+                <Action isBuyer={row.original.buyerAddress === selectedAddress} state={row.value} onClick={() => onEdit({state:row.value,id: row.original.id})}/>)
         }];
 
         return (

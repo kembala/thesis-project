@@ -1,16 +1,57 @@
 import React, {Component} from 'react'
 import getWeb3 from './../utils/getWeb3'
 import SaleContract from './../../build/contracts/SaleContract.json'
+import Form from "react-jsonschema-form";
 
 class ContractEditor extends Component {
+
+    schemaQuantify = {
+        type: "object",
+        properties: {
+            title: {type: "string", title: "Quantity"}
+        }
+    };
+
+    actionQuantify = (data) => {
+        const contract = require('truffle-contract');
+        const saleContract = contract(SaleContract);
+        saleContract.setProvider(this.state.web3.currentProvider);
+
+        saleContract.deployed().then((instance) => {
+            return instance.quantify(data.id, data.quantity);
+        }).then((result) => {
+            console.log(result);
+        });
+    };
 
     constructor(props) {
         super(props);
 
+        const schemaEmpty = {
+            type: "object",
+            properties: {
+            }
+        };
+
         this.state = {
             web3: null,
-            data: []
+            showOperation: true,
+            schema: schemaEmpty,
+            formData: {}
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        // You don't have to do this check first, but it can help prevent an unneeded render
+        if(nextProps.data !== this.props.data) {
+            this.setState({formData: {
+                    id: nextProps.data.id
+                }});
+
+            console.log(`new data in edit: ${nextProps.data}`)
+
+            this.setSchema();
+        }
     }
 
     componentWillMount() {
@@ -29,60 +70,45 @@ class ContractEditor extends Component {
             })
     }
 
-    getContracts() {
-        const contract = require('truffle-contract');
-        const saleContract = contract(SaleContract);
-        saleContract.setProvider(this.state.web3.currentProvider);
-        let contractInstance;
-        let contractIds;
+    handleSubmit = (result) => {
+        console.log(result);
+        switch(this.props.data.state) {
+            case 0: {
+                this.actionQuantify(result.formData);
+                break;
+            }
+        }
+    };
 
-        const hook = this;
+    setSchema () {
+        let newSchema;
 
-        saleContract.deployed().then((instance) => {
-            contractInstance = instance;
-            return contractInstance.getContracts.call({from: this.props.selectedAddress});
-        }).then((result) => {
-            contractIds = result;
+        switch(this.props.data.state) {
+            case 0: {
+                newSchema = this.schemaQuantify;
+                break;
+            }
+        }
 
-            contractIds.forEach(function (val, index) {
-                let contractData = {};
-
-                saleContract.deployed().then((instance) => {
-                    contractInstance = instance;
-                    return contractInstance.getContractValues.call(val.toNumber());
-                }).then((result) => {
-                    contractData.quantity = result[0].toString();
-                    contractData.unitPrice = result[0].toString();
-                    contractData.deliveryDate = result[0].toString();
-                    contractData.returnPolicy = result[0].toString();
-                    contractData.deposit = result[0].toString();
-                    contractData.freight = result[0].toString();
-                    contractData.insurance = result[0].toString();
-                    contractData.comment = result[0].toString();
-
-                    return contractInstance.getContractParticipants.call(val.toNumber());
-                }).then((result) => {
-                    contractData.buyerAddress = result[0];
-                    contractData.sellerAddress = result[1];
-
-                    return contractInstance.getContractState.call(val.toNumber())
-                }).then((result) => {
-                    contractData.action = result.toNumber();
-                    console.log(contractData.action)
-
-                    hook.setState({
-                        data: [...hook.state.data, contractData]
-                    });
-                });
-            });
-        });
+        this.setState({schema: newSchema});
     }
 
     render() {
+        const uiSchemaHiddenId = {
+            id: {"ui:widget": "hidden"}
+        };
 
         return (
             <div>
-                {this.props.address}
+                {this.props.data == null
+                ?
+                "No contracts selected"
+                :
+                this.state.showOperation &&
+                <Form schema={this.state.schema}
+                      uiSchema={uiSchemaHiddenId}
+                      formData={this.state.formData}
+                      onSubmit={this.handleSubmit} />}
             </div>
         )
     }

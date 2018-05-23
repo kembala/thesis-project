@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {Button} from "react-bootstrap";
 
-class Action extends Component {
+class ActionButton extends Component {
 
     /*
     /// Fulfilment state of the digital sale contract
@@ -63,7 +63,7 @@ class Action extends Component {
     render() {
         return (
             <div>
-                <Button bsStyle="primary" bsSize="small" onClick={this.props.onEdit}>
+                <Button bsStyle="primary" bsSize="small" onClick={this.props.onClick}>
                     {this.getAction()}
                 </Button>
             </div>
@@ -71,4 +71,4 @@ class Action extends Component {
     }
 }
 
-export default Action
+export default ActionButton

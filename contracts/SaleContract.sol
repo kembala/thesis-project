@@ -80,6 +80,9 @@ contract SaleContract {
         participatedContracts[msg.sender].push(_contractID);
         participatedContracts[_sellerAddres].push(_contractID);
 
+        // Raise event
+        ContractCreated(_contractID);
+
         // Return ID
         return _contractID;
     }
@@ -246,6 +249,8 @@ contract SaleContract {
     }
 
     // Contract enfillment events (Possible issue with events sent to all subscribers)
+
+    event ContractCreated(uint _contractId);
 
     event OfferRequested(uint _contractId);
 
