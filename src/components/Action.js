@@ -60,7 +60,7 @@ class ActionButton extends Component {
     inputHandlerButton = (title, style) => {
         return (
             <div>
-                <Button bsSize="small" bsStyle="info"
+                <Button bsSize="small" bsStyle={style}
                         onClick={() => this.props.inputHandler({state: this.props.state, id: this.props.contractId})}>
                     {title}
                 </Button>
@@ -82,7 +82,7 @@ class ActionButton extends Component {
 
     acceptOrDeclineButton = () => {
         return (
-            <div>
+            <div className="btn-group">
                 <Button bsSize="small" bsStyle="success"
                         onClick={this.acceptProposal}>
                     Accept
@@ -107,7 +107,7 @@ class ActionButton extends Component {
         if (this.props.isBuyer) {
             switch (this.props.state) {
                 case 0: {
-                    return this.inputHandlerButton('Quantify', 'primary');
+                    return this.inputHandlerButton('Quantify', 'info');
                 }
                 case 1: {
                     return this.infoText('Waiting for proposal');
@@ -134,7 +134,7 @@ class ActionButton extends Component {
                     return this.infoText('Waiting for quantity');
                 }
                 case 1: {
-                    return this.inputHandlerButton('Propose', 'primary');
+                    return this.inputHandlerButton('Propose', 'info');
                 }
                 case 2: {
                     return this.infoText('Waiting for acceptance');
