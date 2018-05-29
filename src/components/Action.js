@@ -43,6 +43,20 @@ class ActionButton extends Component {
         });
     };
 
+    withdrawProposal = () => {
+        const contract = require('truffle-contract');
+        const saleContract = contract(SaleContract);
+        saleContract.setProvider(this.state.web3.currentProvider);
+
+        saleContract.deployed().then((instance) => {
+            return instance.withdrawOffer(
+                this.state.web3.toBigNumber(this.props.contractId),
+                {from: this.props.address, gas: 200000});
+        }).then((result) => {
+            console.log(result);
+        });
+    };
+
     initiateSale = () => {
         const contract = require('truffle-contract');
         const saleContract = contract(SaleContract);
@@ -77,7 +91,11 @@ class ActionButton extends Component {
     };
 
     fail = () => {
-        return (<span className="badge badge-pill badge-danger">Failed</span>)
+        return (<span className="badge badge-pill badge-warning">Failed</span>)
+    };
+
+    withdrawed = () => {
+        return (<span className="badge badge-pill badge-danger">Withdrawed</span>)
     };
 
     acceptOrDeclineButton = () => {
@@ -88,6 +106,17 @@ class ActionButton extends Component {
                     Accept
                 </Button>
                 {this.inputHandlerButton('Decline', 'danger')}
+            </div>
+        )
+    };
+
+    withdrawButton = () => {
+        return (
+            <div className="btn-group">
+                <Button bsSize="small" bsStyle="warning"
+                        onClick={this.withdrawProposal}>
+                    Withdraw
+                </Button>
             </div>
         )
     };
@@ -124,6 +153,9 @@ class ActionButton extends Component {
                 case 5: {
                     return this.success();
                 }
+                case 6: {
+                    return this.withdrawed();
+                }
                 default: {
                     return 'no implemented action for state';
                 }
@@ -143,10 +175,13 @@ class ActionButton extends Component {
                     return this.initiateButton();
                 }
                 case 4: {
-                    return this.fail();
+                    return this.withdrawButton();
                 }
                 case 5: {
                     return this.success();
+                }
+                case 6: {
+                    return this.withdrawed();
                 }
                 default: {
                     return 'no implemented action for state';

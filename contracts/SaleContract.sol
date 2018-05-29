@@ -4,23 +4,23 @@ pragma solidity ^0.4.18;
 import "./libs/strings.sol";
 
 
-/// Digital sale e-contract manager
+/* Digital sale e-contract manager */
 contract SaleContract {
     using strings for *;
 
-    /* E-contract text template with the tempate variables packed inside as <variable_name> */
+    /* E-contract text template with the template variables packed inside as <variable_name> */
     string contractTemplate;
 
-    // Container for digital contrats
+    /* Container for digital contracts */
     DigitalContract[] contracts;
 
-    // Map to find related contracts
+    /* Map to find related contracts */
     mapping (address => uint[]) participatedContracts;
 
-    /// Fulfilment state of the digital sale contract
-    enum State {Empty, Request, Proposal, Agreement, Fail, Initiated}
+    /* Fulfilment state of the digital sale contract */
+    enum State {Empty, Request, Proposal, Agreement, Fail, Initiated, Withdrawed}
 
-    // Variables for individual e-contract instances
+    /* Variables for individual e-contract instances */
     struct DigitalContract {
         /* Required fields */
         address buyerAddress;
@@ -42,19 +42,19 @@ contract SaleContract {
         string comment;
     }
 
-    /// Function modifier to ensure state transitions
+    /* Function modifier to ensure state transitions */
     modifier onlyInState (uint _contractID, State _state) {
         require(contracts[_contractID].state == _state);
         _;
     }
 
-    /// Function modifier to ensure buyer is calling
+    /* Function modifier to ensure buyer is calling */
     modifier onlyBuyer (uint _contractID){
         require(contracts[_contractID].buyerAddress == msg.sender);
         _;
     }
 
-    /// Function modifier to ensure seller is calling
+    /* Function modifier to ensure seller is calling */
     modifier onlySeller (uint _contractID){
         require(contracts[_contractID].sellerAddress == msg.sender);
         _;
@@ -67,10 +67,10 @@ contract SaleContract {
     }
 
     /* Create sale e-contract instance with the transaction sender as buyer */
-    function createContract(address _sellerAddres) external returns (uint _contractID){
+    function createContract(address _sellerAddress) external returns (uint _contractID){
 
         // Initialize digital contract
-        contracts.push(DigitalContract(msg.sender, _sellerAddres, State.Empty, 0, 0, "", "", 0, "", "", ""));
+        contracts.push(DigitalContract(msg.sender, _sellerAddress, State.Empty, 0, 0, "", "", 0, "", "", ""));
         // Struct values in respective order
 
         // Obtain ID as current max ID
@@ -78,7 +78,7 @@ contract SaleContract {
 
         // Create participant mappings
         participatedContracts[msg.sender].push(_contractID);
-        participatedContracts[_sellerAddres].push(_contractID);
+        participatedContracts[_sellerAddress].push(_contractID);
 
         // Raise event
         ContractCreated(_contractID);
@@ -87,7 +87,7 @@ contract SaleContract {
         return _contractID;
     }
 
-    // Get transaction sender related e-contracts
+    /* Get transaction sender related e-contracts */
     function getContracts() external view returns (uint[] _contractID){
         return participatedContracts[msg.sender];
     }
@@ -174,6 +174,8 @@ contract SaleContract {
         return export.toString();
     }
 
+    /* Actions */
+
     function quantify(uint _contractID, uint _quantity) external onlyBuyer(_contractID) onlyInState(_contractID, State.Empty) {
         DigitalContract storage digitalContract = contracts[_contractID];
 
@@ -240,15 +242,15 @@ contract SaleContract {
     }
 
     function withdrawOffer(uint _contractID) external onlySeller(_contractID) onlyInState(_contractID, State.Fail) {
-        // DigitalContract storage digitalContract =  contracts[_contractID];
+        DigitalContract storage digitalContract =  contracts[_contractID];
 
-        // TODO: implement
+        digitalContract.state = State.Withdrawed;
 
         // Raise event
         OfferWithdrawed(_contractID);
     }
 
-    // Contract enfillment events (Possible issue with events sent to all subscribers)
+    /* Contract enfillment events (Possible issue with events sent to all subscribers) */
 
     event ContractCreated(uint _contractId);
 
