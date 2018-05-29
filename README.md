@@ -1,5 +1,4 @@
 # thesis-project
-![Travis Badge](https://travis-ci.com/kemenesbalazs/thesis-project.svg?token=zk4SdsUUbg2RExKGHKy2&branch=master)
 
 This is the example project of the bachelor thesis: "Managing digital contracts on blockchain platforms".
 It consists of a react-app based on Truffle's [react-app](http://truffleframework.com/boxes/react).
@@ -13,15 +12,24 @@ which will simplify the creation process and the enforcement of the contracts.
 
 This is the proof-of.concept implementation of such a platform in Solidity language for Ethereum blockchain with ReactJS based front-end.
 
+
+## Prerequisites
+
+On a fresh Ubuntu 18.04 install, we can set-up the necessary packages (Node, Truffle, Git) with the following commands:
+```
+    sudo apt install -y build-essential nodejs npm git
+    sudo npm install -g truffle
+```
+
 ## Installation
 
-1. Install Truffle globally.
-    ```javascript
-    npm install -g truffle
+1. Clone repository from GitHub.
+    ```
+    git clone https://github.com/kemenesbalazs/thesis-project
     ```
 
 2. Install the necessary dependencies in project directory.
-    ```javascript
+    ```
     cd thesis-project
     npm install
     ```
@@ -51,12 +59,6 @@ This is the proof-of.concept implementation of such a platform in Solidity langu
 
     // If outside the development console..
     truffle test
-    ```
-
-* Jest is included for testing React components. Compile your contracts before running Jest, or you may receive some file not found errors.
-    ```javascript
-    // Run Jest outside of the development console for front-end component tests.
-    npm run test
     ```
 ## Build
 
